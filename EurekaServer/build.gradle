@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.2'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'az.umid'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        // Səndə olan Java versiyasını bura yazırıq
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    // Spring Boot 3.4.x üçün ən uyğun Cloud versiyası
+    set('springCloudVersion', "2024.0.0")
+}
+
+dependencies {
+    // Eureka Server üçün əsas asılılıq
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
+
+    // Java 17 və Spring Boot 3+ üçün lazımi daxili kitabxana
+    implementation 'com.netflix.eureka:eureka-client-jersey3'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
