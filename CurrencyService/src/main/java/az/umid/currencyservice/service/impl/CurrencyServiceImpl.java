@@ -1,81 +1,34 @@
 package az.umid.currencyservice.service.impl;
 
-import az.umid.currencyservice.dto.CurrencyRequest;
 import az.umid.currencyservice.dto.CurrencyResponse;
-import az.umid.currencyservice.entity.Currency;
-import az.umid.currencyservice.mapper.CurrencyMapper;
-import az.umid.currencyservice.repository.CurrencyRepository;
 import az.umid.currencyservice.service.CurrencyService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.Map;
 
-@Service 
-@RequiredArgsConstructor 
-@Slf4j 
+@Service
 public class CurrencyServiceImpl implements CurrencyService {
 
-    private final CurrencyRepository repository; 
-    private final CurrencyMapper mapper;         
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
-    public CurrencyResponse getByCode(String code) {
-        log.info("Valyuta axtarılır: {}", code);
-        return repository.findByCode(code.toUpperCase())
-                .map(mapper::toResponse) 
-                .orElseThrow(() -> new NoSuchElementException("Valyuta tapılmadı: " + code));
-    }
+    public CurrencyResponse getRates() {
 
-    @Override
-    public List<CurrencyResponse> getAll() {
-        log.info("Bütün valyutalar siyahısı gətirilir");
-        return repository.findAll().stream()
-                .map(mapper::toResponse)
-                .toList(); 
-    }
+        String url = "https://open.er-api.com/v6/latest/USD";
 
-    @Override
-    @Transactional 
-    public void save(CurrencyRequest request) {
-        log.info("Valyuta yadda saxlanılır: {}", request.getCode());
+        Map response = restTemplate.getForObject(url, Map.class);
 
-        
-        Currency currency = repository.findByCode(request.getCode().toUpperCase())
-                .orElse(new Currency());
+        Map rates = (Map) response.get("rates");
 
-        currency.setCode(request.getCode().toUpperCase());
-        currency.setRate(request.getRate());
-        currency.setUpdatedAt(LocalDateTime.now()); 
+        CurrencyResponse r = new CurrencyResponse();
 
-        repository.save(currency); 
-    }
+        r.setBase("USD");
+        r.setUsd(1.0);
+        r.setEur((Double) rates.get("EUR"));
+        r.setTryRate((Double) rates.get("TRY"));
+        r.setGbp((Double) rates.get("GBP"));
 
-    @Override
-    @Transactional
-    public void update(String code, Double rate) {
-        log.info("Məzənnə update olunur: {} -> {}", code, rate);
-
-        Currency currency = repository.findByCode(code.toUpperCase())
-                .orElseThrow(() -> new NoSuchElementException("Yenilənəcək valyuta tapılmadı"));
-
-        currency.setRate(rate); 
-        currency.setUpdatedAt(LocalDateTime.now());
-        
-    }
-
-    @Override
-    @Transactional
-    public void delete(String code) {
-        log.warn("Valyuta silinir: {}", code);
-
-        Currency currency = repository.findByCode(code.toUpperCase())
-                .orElseThrow(() -> new NoSuchElementException("Silinəcək valyuta tapılmadı"));
-
-        repository.delete(currency); 
+        return r;
     }
 }

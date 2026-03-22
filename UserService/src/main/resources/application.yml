@@ -3,15 +3,20 @@ server:
 
 spring:
   application:
-    name: user-service
+    name: USER-SERVICE
+
   datasource:
     url: jdbc:postgresql://localhost:5432/user_db
     username: postgres
     password: Umid/4709.
+    driver-class-name: org.postgresql.Driver
+
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+    open-in-view: false
+
   mongodb:
     uri: mongodb://localhost:27017/user_logs
 
@@ -19,3 +24,5 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true

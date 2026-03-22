@@ -2,11 +2,11 @@ package az.umid.customservice.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "ai-service", url = "http://localhost:8084")
+@FeignClient(name = "AIINTEGRATIONSERVICE")
 public interface AiClient {
-    
-    @PostMapping("/api/v1/ai/ask")
-    String getAiResponse(@RequestBody String prompt);
+
+    @PostMapping("/api/ai/analyze")
+    String analyzeProduct(@RequestParam String productName);
 }

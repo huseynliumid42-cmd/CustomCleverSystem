@@ -1,21 +1,58 @@
-async function loadCustomsData() {
-    const listElement = document.getElementById('customs-list');
-    listElement.innerHTML = "Yüklənir...";
-
+async function checkStatus() {
     try {
-        
-        const response = await fetch('/api/customs/all');
-        const data = await response.json();
+        const res = await fetch("http://localhost:8060/api/ai/status");
+        const data = await res.text();
 
-        listElement.innerHTML = ""; 
-
-        data.forEach(item => {
-            const li = document.createElement('li');
-            li.textContent = `Bəyannamə: ${item.id} - Status: ${item.status}`;
-            listElement.appendChild(li);
-        });
-    } catch (error) {
-        console.error("Xəta baş verdi:", error);
-        listElement.innerHTML = "Məlumat alınarkən xəta baş verdi.";
+        document.getElementById("status").innerText = "🟢 " + data + " (via Gateway)";
+    } catch (e) {
+        document.getElementById("status").innerText = "🔴 Service unavailable";
     }
 }
+
+async function send() {
+    const input = document.getElementById("message");
+    const chatBox = document.getElementById("chat-box");
+
+    const message = input.value.trim();
+    if (!message) return;
+
+    addMessage(message, "user");
+    input.value = "";
+
+    // loading göstər
+    const loading = addMessage("...", "bot");
+
+    try {
+        const res = await fetch("http://localhost:8060/api/ai/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "text/plain"
+            },
+            body: message
+        });
+
+        const data = await res.text();
+
+        loading.remove();
+        addMessage(data, "bot");
+
+    } catch (e) {
+        loading.remove();
+        addMessage("❌ Server error", "bot");
+    }
+}
+
+function addMessage(text, type) {
+    const chatBox = document.getElementById("chat-box");
+
+    const div = document.createElement("div");
+    div.classList.add("message", type);
+    div.innerText = text;
+
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    return div;
+}
+
+window.onload = checkStatus;

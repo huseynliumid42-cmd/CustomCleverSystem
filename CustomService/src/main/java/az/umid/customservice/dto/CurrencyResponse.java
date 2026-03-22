@@ -1,4 +1,4 @@
-package az.umid.currencyservice.dto;
+package az.umid.customservice.dto;
 
 import lombok.Data;
 
