@@ -1,20 +1,128 @@
 <!DOCTYPE html>
-<html>
+<html lang="az">
 <head>
-  <meta charset="UTF-8">
-  <title>Gömrük Portalı</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Custom Clever System</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+<div class="bg bg-one"></div>
+<div class="bg bg-two"></div>
+<div class="bg bg-three"></div>
 
-<h1>Gömrük Portalı</h1>
+<div class="app-shell">
+  <header class="hero">
+    <div class="hero-left">
+      <div class="avatar-wrap">
+        <div class="avatar-circle">U</div>
+      </div>
+      <div>
+        <p class="hero-kicker">Custom Clever System</p>
+        <h1>Salam, Ümid!</h1>
+        <p class="hero-subtitle">Ağıllı gömrük idarəetmə panelinə xoş gəlmisən.</p>
+      </div>
+    </div>
 
-<div class="menu">
-  <a href="declaration.html">📄 Bəyannamə</a>
-  <a href="payments.html">💰 Rüsumlar</a>
-  <a href="requests.html">📬 Müraciətlər</a>
-  <a href="ai.html">🤖 AI Köməkçi</a>
+    <div class="hero-right">
+      <div class="limit-chip">300$ limit</div>
+    </div>
+  </header>
+
+  <section class="top-grid">
+    <div class="glass-card stat-card">
+      <div class="stat-ring">
+        <div class="ring-inner"></div>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Aylıq istifadə</span>
+        <h2>0.0 $</h2>
+        <p>Hazırkı istifadə limitə yaxındırsa sistem xəbərdarlıq edəcək.</p>
+      </div>
+    </div>
+
+    <div class="glass-card bot-card">
+      <div class="bot-text">
+        <span class="bot-badge">Smart Bot</span>
+        <h3>Sənin elektron gömrük bələdçin</h3>
+        <p>Sürətli qeydiyyat, valyuta məlumatı və AI köməkçi bir paneldə.</p>
+      </div>
+      <div class="bot-emoji">🤖</div>
+    </div>
+  </section>
+
+  <section class="dashboard-grid">
+    <div class="glass-card service-card">
+      <div class="card-title-row">
+        <h3>👤 Create User</h3>
+        <span class="card-tag">User Service</span>
+      </div>
+
+      <div class="form-grid">
+        <div class="input-group">
+          <label for="name">Ad</label>
+          <input id="name" placeholder="Məs: Umid" />
+        </div>
+
+        <div class="input-group">
+          <label for="email">Email</label>
+          <input id="email" placeholder="Məs: umid@test.com" />
+        </div>
+
+        <div class="input-group">
+          <label for="password">Şifrə</label>
+          <input id="password" type="password" placeholder="Şifrə" />
+        </div>
+
+        <div class="input-group">
+          <label for="pinCode">Pin Code</label>
+          <input id="pinCode" placeholder="Məs: 1234" />
+        </div>
+
+        <div class="input-group full">
+          <label for="username">Username</label>
+          <input id="username" placeholder="Məs: umid123" />
+        </div>
+      </div>
+
+      <button class="primary-btn" onclick="createUser()">Create User</button>
+      <p id="userResult" class="result-box muted">İstifadəçi yaradılmayıb.</p>
+    </div>
+
+    <div class="glass-card service-card">
+      <div class="card-title-row">
+        <h3>💱 Currency Rates</h3>
+        <span class="card-tag">Currency Service</span>
+      </div>
+
+      <p class="section-text">Aktual məzənnələri bir kliklə yüklə.</p>
+      <button class="primary-btn" onclick="loadRates()">Load Rates</button>
+
+      <pre id="currencyResult" class="code-box">Məlumat hələ yüklənməyib...</pre>
+    </div>
+
+    <div class="glass-card service-card ai-card">
+      <div class="card-title-row">
+        <h3>🤖 AI Chat</h3>
+        <span class="card-tag">AI Integration</span>
+      </div>
+
+      <div id="chatMessages" class="chat-messages">
+        <div class="msg bot-msg">
+          Salam 👋 Mən sənin gömrük köməkçinəm. Sualını yaz.
+        </div>
+      </div>
+
+      <div class="chat-input-row">
+        <input id="aiInput" placeholder="Məs: salam, gömrük limiti nə qədərdir?" />
+        <button class="send-btn" onclick="sendMessage()">Send</button>
+      </div>
+
+      <div id="aiOutput" class="hidden-output"></div>
+    </div>
+  </section>
 </div>
 
+<script src="app.js"></script>
 </body>
 </html>

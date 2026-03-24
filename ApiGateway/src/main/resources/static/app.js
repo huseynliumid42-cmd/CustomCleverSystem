@@ -1,58 +1,129 @@
-async function checkStatus() {
-    try {
-        const res = await fetch("http://localhost:8060/api/ai/status");
-        const data = await res.text();
+const BASE_URL = "http://localhost:8060";
 
-        document.getElementById("status").innerText = "🟢 " + data + " (via Gateway)";
-    } catch (e) {
-        document.getElementById("status").innerText = "🔴 Service unavailable";
-    }
+function setText(id, text, className = "") {
+    const el = document.getElementById(id);
+    el.className = className ? `result-box ${className}` : "result-box";
+    el.innerText = text;
 }
 
-async function send() {
-    const input = document.getElementById("message");
-    const chatBox = document.getElementById("chat-box");
+function appendMessage(text, type) {
+    const chatMessages = document.getElementById("chatMessages");
+    const msg = document.createElement("div");
+    msg.className = `msg ${type === "user" ? "user-msg" : "bot-msg"}`;
+    msg.innerText = text;
+    chatMessages.appendChild(msg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
 
-    const message = input.value.trim();
-    if (!message) return;
+async function createUser() {
+    const data = {
+        name: document.getElementById("name").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value.trim(),
+        pinCode: document.getElementById("pinCode").value.trim(),
+        username: document.getElementById("username").value.trim()
+    };
 
-    addMessage(message, "user");
-    input.value = "";
-
-    // loading göstər
-    const loading = addMessage("...", "bot");
+    if (!data.name || !data.email || !data.password || !data.pinCode || !data.username) {
+        setText("userResult", "Bütün xanaları doldur.", "error-text");
+        return;
+    }
 
     try {
-        const res = await fetch("http://localhost:8060/api/ai/chat", {
+        const res = await fetch(`${BASE_URL}/api/users/register`, {
             method: "POST",
             headers: {
-                "Content-Type": "text/plain"
+                "Content-Type": "application/json"
             },
-            body: message
+            body: JSON.stringify(data)
         });
 
-        const data = await res.text();
+        const text = await res.text();
 
-        loading.remove();
-        addMessage(data, "bot");
+        if (!res.ok) {
+            setText("userResult", `Create error: ${text}`, "error-text");
+            return;
+        }
 
-    } catch (e) {
-        loading.remove();
-        addMessage("❌ Server error", "bot");
+        setText("userResult", "User created ✅", "success-text");
+
+        document.getElementById("name").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("password").value = "";
+        document.getElementById("pinCode").value = "";
+        document.getElementById("username").value = "";
+    } catch (err) {
+        setText("userResult", `Connection error: ${err.message}`, "error-text");
+        console.error("CREATE USER ERROR:", err);
     }
 }
 
-function addMessage(text, type) {
-    const chatBox = document.getElementById("chat-box");
+async function loadRates() {
+    const result = document.getElementById("currencyResult");
+    result.innerText = "Yüklənir...";
 
-    const div = document.createElement("div");
-    div.classList.add("message", type);
-    div.innerText = text;
+    try {
+        const res = await fetch(`${BASE_URL}/api/currency/rates`);
+        const text = await res.text();
 
-    chatBox.appendChild(div);
-    chatBox.scrollTop = chatBox.scrollHeight;
+        if (!res.ok) {
+            result.innerText = `Currency error: ${text}`;
+            return;
+        }
 
-    return div;
+        try {
+            const data = JSON.parse(text);
+            result.innerText = JSON.stringify(data, null, 2);
+        } catch {
+            result.innerText = text;
+        }
+    } catch (err) {
+        result.innerText = `Connection error: ${err.message}`;
+        console.error("CURRENCY ERROR:", err);
+    }
 }
 
-window.onload = checkStatus;
+async function sendMessage() {
+    const input = document.getElementById("aiInput");
+    const message = input.value.trim();
+
+    if (!message) {
+        return;
+    }
+
+    appendMessage(message, "user");
+    input.value = "";
+
+    try {
+        const res = await fetch(`${BASE_URL}/api/ai/chat`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message })
+        });
+
+        const text = await res.text();
+
+        if (!res.ok) {
+            appendMessage(`AI error: ${text}`, "bot");
+            return;
+        }
+
+        try {
+            const data = JSON.parse(text);
+            appendMessage(data.response || "Cavab boş gəldi.", "bot");
+        } catch {
+            appendMessage(text, "bot");
+        }
+    } catch (err) {
+        appendMessage(`Connection error: ${err.message}`, "bot");
+        console.error("AI CHAT ERROR:", err);
+    }
+}
+
+document.getElementById("aiInput").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+        sendMessage();
+    }
+});
